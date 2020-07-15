@@ -488,6 +488,33 @@ def autocorrect(_processed_source, offense)
 end
 ```
 
+## Running linter via Ruby on a ERB string template
+You'd like never need to do this. But maybe a user is creating their own ERB template you'd want to render. Note this introduces security concerns. 
+
+This is how to lint a string.
+
+1. Require the gem in the Gemfile, or require it manually. 
+```
+require 'erb_lint'
+```
+
+Then run the following code. It will print the error objects. 
+```
+contents = '<%=  blah %>'
+
+file_loader = ERBLint::FileLoader.new('.')
+
+linters = ERBLint::LinterRegistry.linters
+linters.map do |linter_class|
+  linter_config = linter_class.config_schema.new
+  
+  linter = linter_class.new(file_loader, linter_config)  
+  processed_source = ERBLint::ProcessedSource.new('file.rb', contents)
+  linter.run(processed_source)
+  puts linter.offenses
+end
+```
+
 ## License
 
 This project is released under the [MIT license](LICENSE.txt).
